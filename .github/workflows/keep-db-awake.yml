@@ -11,10 +11,11 @@
        steps:
          - name: Query Supabase
            env:
-             DATABASE_URL: ${{ secrets.DATABASE_URL }}
+             RAW_URL: ${{ secrets.DATABASE_URL }}
            run: |
-             if [ -z "$DATABASE_URL" ]; then echo "DATABASE_URL: 없음"; exit 1; fi
+             URL=$(printf '%s' "$RAW_URL" | tr -d "\"' \r\n")
+             if [ -z "$URL" ]; then echo "DATABASE_URL: 없음"; exit 1; fi
              echo "DATABASE_URL: 있음"
              command -v psql >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client)
-             psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -t -c "select count(*) from tf_students;" > /dev/null
+             psql "$URL" -v ON_ERROR_STOP=1 -t -c "select count(*) from tf_students;" > /dev/null
              echo "DB 질의 성공"
